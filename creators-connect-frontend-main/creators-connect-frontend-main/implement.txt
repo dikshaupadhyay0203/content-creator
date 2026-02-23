@@ -1,0 +1,31 @@
+npm create vite@latest creatorconnect-frontend
+cd creatorconnect-frontend
+npm install
+
+
+npm install axios react-router-dom
+npm install react-hot-toast
+npm install tailwindcss @tailwindcss/vite
+
+src/
+│
+├── api/
+│   ├── axiosInstance.js
+│   └── authApi.js
+│
+├── context/
+│   └── AuthContext.jsx
+│
+├── pages/
+│   ├── Login.jsx
+│   ├── Signup.jsx
+│   └── Dashboard.jsx
+│
+├── routes/
+│   └── ProtectedRoute.jsx
+│
+├── components/
+│   └── Navbar.jsx
+│
+├── App.jsx
+└── main.jsx
