@@ -7,12 +7,13 @@ import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import assetRoutes from "./routes/assestRoute.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
-
-// console.log("EMAIL_USER:", process.env.EMAIL_USER);
-// console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
-
+import mongoose from "mongoose";
+import { saveMessageService } from "./services/chatService.js";
+// Import chat controller
+import * as chatController from "./controllers/chatController.js";
 
 connectDB();
 
@@ -21,13 +22,17 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: ["https://creators-connect-frontend.vercel.app", "http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",
+      "https://creators-connect-frontend.vercel.app"
+    ],
+    methods: ["GET", "POST"],
     credentials: true
-  }
+  },
+  transports: ["websocket"]
 });
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 app.use(cors({
@@ -37,192 +42,158 @@ app.use(cors({
 
 app.use("/api/auth", authRoutes);
 app.use("/api/assets", assetRoutes);
-
-// Socket.io for Chat Room
-const activeUsers = new Map();
-const chatRooms = new Map();
+app.use("/api/chat", chatRoutes);
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // User joins with their user info
+  // Handle user join
   socket.on("join", (userData) => {
-    activeUsers.set(socket.id, {
-      ...userData,
-      socketId: socket.id
-    });
+    console.log("User joined:", userData);
+    const users = chatController.handleJoin(socket, userData);
 
-    // Notify others that user is online
     socket.broadcast.emit("userOnline", {
       userId: userData.id,
       name: userData.name
     });
-  });
 
-  // Join a specific chat room
-  socket.on("joinRoom", ({ roomId, user }) => {
-    socket.join(roomId);
-
-    // Initialize room if it doesn't exist
-    if (!chatRooms.has(roomId)) {
-      chatRooms.set(roomId, {
-        messages: [],
-        users: []
-      });
-    }
-
-    const room = chatRooms.get(roomId);
-    room.users.push({ id: user.id, name: user.name, socketId: socket.id });
-
-    // Notify room members
-    io.to(roomId).emit("roomUsers", {
-      roomId,
-      users: room.users
-    });
-
-    // Send previous messages to the user who just joined
-    socket.emit("previousMessages", room.messages);
-
-    // Notify user joined
-    socket.to(roomId).emit("message", {
-      text: `${user.name} has joined the chat`,
-      sender: { name: "System" },
-      timestamp: new Date().toISOString(),
-      isSystem: true
-    });
-  });
-
-  // Leave a chat room
-  socket.on("leaveRoom", ({ roomId, user }) => {
-    socket.leave(roomId);
-
-    if (chatRooms.has(roomId)) {
-      const room = chatRooms.get(roomId);
-      room.users = room.users.filter(u => u.socketId !== socket.id);
-
-      io.to(roomId).emit("roomUsers", {
-        roomId,
-        users: room.users
-      });
-
-      // Notify others
-      socket.to(roomId).emit("message", {
-        text: `${user.name} has left the chat`,
-        sender: { name: "System" },
-        timestamp: new Date().toISOString(),
-        isSystem: true
-      });
-    }
-  });
-
-  // Send message to a room
-  socket.on("sendMessage", ({ roomId, message, sender }) => {
-    const messageData = {
-      text: message,
-      sender: { id: sender.id, name: sender.name },
-      timestamp: new Date().toISOString(),
-      isSystem: false
-    };
-
-    // Save message to room history
-    if (chatRooms.has(roomId)) {
-      const room = chatRooms.get(roomId);
-      room.messages.push(messageData);
-      // Keep only last 100 messages
-      if (room.messages.length > 100) {
-        room.messages = room.messages.slice(-100);
-      }
-    }
-
-    // Broadcast to room
-    io.to(roomId).emit("message", messageData);
-  });
-
-  // Create a new room
-  socket.on("createRoom", ({ roomName, user }) => {
-    const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-    chatRooms.set(roomId, {
-      name: roomName,
-      messages: [],
-      users: [],
-      createdBy: user.id,
-      createdAt: new Date().toISOString()
-    });
-
-    // Notify all users about new room
-    io.emit("roomCreated", {
-      roomId,
-      name: roomName,
-      createdBy: user.name
-    });
-
-    socket.emit("roomCreatedSuccess", { roomId, name: roomName });
-  });
-
-  // Get all available rooms
-  socket.on("getRooms", () => {
-    const rooms = [];
-    chatRooms.forEach((room, id) => {
-      rooms.push({
-        id,
-        name: room.name,
-        userCount: room.users.length,
-        createdAt: room.createdAt
-      });
-    });
-    socket.emit("roomsList", rooms);
-  });
-
-  // Typing indicator
-  socket.on("typing", ({ roomId, user }) => {
-    socket.to(roomId).emit("userTyping", { user });
-  });
-
-  socket.on("stopTyping", ({ roomId, user }) => {
-    socket.to(roomId).emit("userStoppedTyping", { user });
-  });
-
-  // Get online users
-  socket.on("getOnlineUsers", () => {
-    const users = [];
-    activeUsers.forEach((user) => {
-      users.push({ id: user.id, name: user.name });
-    });
     socket.emit("onlineUsers", users);
   });
 
-  // Disconnect
+  // Handle joining a chat room
+  socket.on("joinRoom", ({ roomId, roomName, user }) => {
+    console.log("User joining room:", roomId, user.name);
+
+    const { room, messages } = chatController.handleJoinRoom(socket, io, { roomId, roomName, user });
+
+    socket.emit("previousMessages", messages);
+    io.to(roomId).emit("roomUsers", room.users);
+
+    console.log("Room users after join:", room.users);
+  });
+
+  // Handle leaving a chat room
+  socket.on("leaveRoom", ({ roomId, user }) => {
+    console.log("User leaving room:", roomId, user.name);
+    chatController.handleLeaveRoom(socket, io, { roomId, user });
+    const roomUsers = chatController.handleGetRoomUsers(roomId);
+    io.to(roomId).emit("roomUsers", roomUsers);
+  });
+
+  // Handle sending a message in a room
+  socket.on("sendMessage", ({ roomId, message, sender }) => {
+    console.log("Sending message to room:", roomId, "message:", message);
+
+    const messageData = chatController.handleSendMessage(socket, io, { roomId, message, sender });
+
+    if (messageData) {
+      console.log("Message emitted to room:", roomId);
+    } else {
+      console.log("User not found for socket:", socket.id);
+    }
+  });
+
+  // Handle sending a direct message
+  socket.on("sendDirectMessage", async ({ roomId, message, sender }) => {
+
+    console.log("Saving DM to DB:", message);
+
+    const fallbackMessage = {
+      roomId,
+      text: message,
+      sender: {
+        id: sender?.id,
+        name: sender?.name
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+
+      if (!mongoose.Types.ObjectId.isValid(roomId)) {
+        io.to(roomId).emit("directMessage", fallbackMessage);
+        console.log("DM emitted (in-memory room)");
+        return;
+      }
+
+      const savedMessage = await saveMessageService({
+        conversationId: roomId,
+        sender: sender.id,
+        text: message
+      });
+
+      io.to(roomId).emit("directMessage", {
+        roomId,
+        text: savedMessage.text,
+        sender: {
+          id: sender.id,
+          name: sender.name
+        },
+        timestamp: savedMessage.createdAt
+      });
+
+      console.log("DM saved & emitted");
+
+    } catch (err) {
+
+      console.log("DB Save Error:", err.message);
+      io.to(roomId).emit("directMessage", fallbackMessage);
+      console.log("DM emitted after DB fallback");
+
+    }
+
+  });
+  // Handle creating a new room
+  socket.on("createRoom", ({ roomName, user }) => {
+    console.log("Creating room:", roomName, "by:", user);
+    chatController.handleCreateRoom(socket, io, { roomName, user });
+  });
+
+  // Handle getting all rooms
+  socket.on("getRooms", () => {
+    const rooms = chatController.handleGetRooms();
+    socket.emit("roomsList", rooms);
+  });
+
+  // Handle typing indicator
+  socket.on("typing", ({ roomId, user }) => {
+    chatController.handleTyping(socket, io, { roomId, user });
+  });
+
+  // Handle stop typing indicator
+  socket.on("stopTyping", ({ roomId, user }) => {
+    chatController.handleStopTyping(socket, io, { roomId, user });
+  });
+
+  // Handle getting online users
+  socket.on("getOnlineUsers", () => {
+    const users = chatController.handleGetOnlineUsers();
+    socket.emit("onlineUsers", users);
+  });
+
+  // Handle starting a direct message conversation
+  socket.on("startDirectMessage", ({ currentUser, targetUser }) => {
+    console.log("Starting direct message:", currentUser.name, "with", targetUser.name);
+    chatController.handleStartDirectMessage(socket, io, { currentUser, targetUser });
+  });
+
+  // Handle getting users in a specific room
+  socket.on("getRoomUsers", (roomId) => {
+    const users = chatController.handleGetRoomUsers(roomId);
+    socket.emit("roomUsers", users);
+  });
+
+  // Handle disconnect
   socket.on("disconnect", () => {
-    const user = activeUsers.get(socket.id);
+    console.log("User disconnected:", socket.id);
+    const user = chatController.handleDisconnect(socket);
+
     if (user) {
-      // Notify others that user is offline
       socket.broadcast.emit("userOffline", {
         userId: user.id,
         name: user.name
       });
-
-      // Remove from all rooms
-      chatRooms.forEach((room, roomId) => {
-        const userInRoom = room.users.find(u => u.socketId === socket.id);
-        if (userInRoom) {
-          room.users = room.users.filter(u => u.socketId !== socket.id);
-          io.to(roomId).emit("roomUsers", {
-            roomId,
-            users: room.users
-          });
-          io.to(roomId).emit("message", {
-            text: `${user.name} has disconnected`,
-            sender: { name: "System" },
-            timestamp: new Date().toISOString(),
-            isSystem: true
-          });
-        }
-      });
-
-      activeUsers.delete(socket.id);
     }
-    console.log("User disconnected:", socket.id);
   });
 });
 

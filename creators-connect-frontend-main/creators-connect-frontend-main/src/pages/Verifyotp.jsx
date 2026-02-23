@@ -55,14 +55,14 @@ const VerifyOtp = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-96">
+    <div className="min-h-screen flex items-center justify-center bg-[#020617] p-4">
+      <div className="bg-[#1F2937] shadow-md rounded-xl p-6 w-full max-w-md text-[#E5E7EB]">
 
         <h2 className="text-2xl font-semibold text-center mb-6">
           Verify OTP
         </h2>
 
-        <p className="text-sm text-gray-500 text-center mb-4">
+        <p className="text-sm text-[#9CA3AF] text-center mb-4">
           Enter the 6-digit code sent to your email
         </p>
 
@@ -74,7 +74,7 @@ const VerifyOtp = () => {
             placeholder="Enter 6-digit OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-            className="w-full border rounded-lg px-4 py-2 text-center tracking-widest text-lg"
+            className="w-full bg-[#111827] border border-[#374151] rounded-lg px-4 py-2 text-center tracking-widest text-lg text-[#E5E7EB] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
             required
           />
 

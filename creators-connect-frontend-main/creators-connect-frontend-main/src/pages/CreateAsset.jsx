@@ -107,21 +107,21 @@ const CreateAsset = () => {
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-[90%] max-w-md text-center">
+          <div className="bg-[#1F2937] rounded-xl shadow-md p-6 w-[90%] max-w-md text-center text-[#E5E7EB]">
 
             <p className="text-lg font-semibold mb-4">
               Uploading Asset...
             </p>
 
             {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-[#111827] rounded-full h-3 overflow-hidden">
               <div
-                className="h-full bg-blue-600 transition-all duration-300"
+                className="h-full bg-[#10B981] transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-[#9CA3AF] mt-2">
               {progress}%
             </p>
 
@@ -130,7 +130,7 @@ const CreateAsset = () => {
       )}
 
       {/* MAIN FORM */}
-      <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-2xl p-8">
+      <div className="max-w-2xl mx-auto bg-[#1F2937] shadow-md rounded-xl p-6 text-[#E5E7EB]">
 
         <h2 className="text-3xl font-bold mb-6">
           Upload New Asset
@@ -150,7 +150,7 @@ const CreateAsset = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full bg-[#111827] border border-[#374151] rounded-lg px-4 py-2 text-[#E5E7EB] placeholder:text-[#9CA3AF] focus:ring-2 focus:ring-[#10B981] outline-none"
             />
           </div>
 
@@ -163,7 +163,7 @@ const CreateAsset = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows="3"
-              className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full bg-[#111827] border border-[#374151] rounded-lg px-4 py-2 text-[#E5E7EB] placeholder:text-[#9CA3AF] focus:ring-2 focus:ring-[#10B981] outline-none"
             />
           </div>
 
@@ -176,7 +176,7 @@ const CreateAsset = () => {
             <select
               value={visibility}
               onChange={(e) => setVisibility(e.target.value)}
-              className="border rounded-lg px-3 py-1"
+              className="bg-[#111827] border border-[#374151] rounded-lg px-3 py-1 text-[#E5E7EB]"
             >
               <option value="public">Public</option>
               <option value="private">Private</option>
@@ -187,17 +187,17 @@ const CreateAsset = () => {
           <div
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
-            className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 transition"
+            className="border-2 border-dashed border-[#374151] rounded-xl p-6 text-center cursor-pointer hover:border-[#10B981] transition-all duration-300 ease-in-out"
           >
-            <p className="text-gray-500">
+            <p className="text-[#9CA3AF]">
               Drag & Drop image or video here
             </p>
 
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-sm text-[#9CA3AF] mt-2">
               or
             </p>
 
-            <label className="text-blue-600 font-medium cursor-pointer">
+            <label className="text-[#10B981] hover:text-[#059669] transition-all duration-300 ease-in-out font-medium cursor-pointer">
               Browse Files
               <input
                 type="file"
@@ -233,7 +233,7 @@ const CreateAsset = () => {
                   setFile(null);
                   setPreview(null);
                 }}
-                className="text-red-500 text-sm mt-2"
+                className="text-[#E5E7EB] text-sm mt-2 hover:text-[#10B981] transition-all duration-300 ease-in-out"
               >
                 Remove File
               </button>

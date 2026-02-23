@@ -41,8 +41,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-96">
+    <div className="min-h-screen flex items-center justify-center bg-[#020617] p-4">
+      <div className="bg-[#1F2937] shadow-md rounded-xl p-6 w-full max-w-md text-[#E5E7EB]">
         <h2 className="text-2xl font-semibold text-center mb-6">
           Login
         </h2>
@@ -54,7 +54,7 @@ const Login = () => {
             type="email"
             placeholder="Email"
             onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-[#111827] border border-[#374151] rounded-lg px-4 py-2 text-[#E5E7EB] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
           />
 
           <input
@@ -62,7 +62,7 @@ const Login = () => {
             type="password"
             placeholder="Password"
             onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-[#111827] border border-[#374151] rounded-lg px-4 py-2 text-[#E5E7EB] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
           />
 
           <Button type="submit" disabled={loading}>
@@ -70,9 +70,9 @@ const Login = () => {
           </Button>
         </form>
 
-        <p className="text-sm text-center mt-4">
+        <p className="text-sm text-center mt-4 text-[#9CA3AF]">
           Don't have account?{" "}
-          <Link to="/signup" className="text-blue-600 font-medium">
+          <Link to="/signup" className="text-[#10B981] hover:text-[#059669] transition-all duration-300 ease-in-out font-medium">
             Signup
           </Link>
         </p>

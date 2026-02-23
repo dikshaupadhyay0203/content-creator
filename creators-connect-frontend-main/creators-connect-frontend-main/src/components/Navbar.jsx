@@ -12,45 +12,51 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <nav className="sticky top-0 z-40 backdrop-blur-md bg-[#111827]/80 shadow-md border-b border-[#1F2937]">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex flex-wrap justify-between items-center gap-3">
 
         {/* Logo */}
         <Link
           to="/dashboard"
-          className="text-2xl font-bold text-blue-600"
+          className="text-xl sm:text-2xl font-bold text-[#E5E7EB] transition-all duration-300 ease-in-out"
         >
-          CreatorConnect
+          Zentrix
         </Link>
 
         {/* Right Side */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center flex-wrap justify-end gap-3 sm:gap-5 text-sm sm:text-base">
 
           {user && (
             <>
               {/* Create Asset Button */}
               <Link
                 to="/create-asset"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+                className="bg-[#10B981] text-white rounded-lg px-3 sm:px-4 py-2 hover:bg-[#059669] hover:scale-105 transition-all duration-300 ease-in-out font-medium"
               >
                 + Create Asset
               </Link>
               <Link
-  to="/my-assets"
-  className="text-gray-700 hover:text-blue-600"
->
-  My Assets
-</Link>
+                to="/my-assets"
+                className="text-[#E5E7EB] hover:text-[#10B981] transition-all duration-300 ease-in-out"
+              >
+                My Assets
+              </Link>
+              <Link
+                to="/chat"
+                className="text-[#E5E7EB] hover:text-[#10B981] transition-all duration-300 ease-in-out"
+              >
+                Chat
+              </Link>
 
               {/* Username */}
-              <span className="text-gray-600 text-sm">
+              <span className="text-[#E5E7EB] text-sm">
                 {user.name}
               </span>
 
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="text-red-500 hover:text-red-600 font-medium"
+                className="text-[#E5E7EB] hover:text-[#10B981] transition-all duration-300 ease-in-out font-medium"
               >
                 Logout
               </button>
@@ -59,12 +65,12 @@ const Navbar = () => {
 
           {!user && (
             <>
-              <Link to="/login" className="text-gray-700">
+              <Link to="/login" className="text-[#E5E7EB] hover:text-[#10B981] transition-all duration-300 ease-in-out">
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                className="bg-[#10B981] text-white rounded-lg px-4 py-2 hover:bg-[#059669] transition-all duration-300 ease-in-out"
               >
                 Signup
               </Link>

@@ -23,24 +23,24 @@ const MyAssets = () => {
 
     return (
         <>
-            <h2 className="text-3xl font-bold mb-6">
+            <h2 className="text-3xl font-bold mb-6 text-[#E5E7EB]">
                 My Assets
             </h2>
 
             {loading ? (
                 <div className="flex justify-center items-center h-64">
-                    <p className="text-gray-500">Loading...</p>
+                    <p className="text-[#9CA3AF]">Loading...</p>
                 </div>
             ) : assets.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
-                    <p className="text-gray-500">No assets found</p>
+                    <p className="text-[#9CA3AF]">No assets found</p>
                 </div>
             ) : (
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {assets.map(asset => (
                         <div
                             key={asset._id}
-                            className="bg-white shadow rounded-xl overflow-hidden"
+                            className="bg-[#1F2937] rounded-xl shadow-md overflow-hidden h-full flex flex-col hover:scale-105 hover:shadow-lg transition-all duration-300 ease-in-out"
                         >
                             {asset.type === "image" ? (
                                 <img
@@ -60,14 +60,14 @@ const MyAssets = () => {
                             )}
 
                             <div className="p-4">
-                                <h3 className="font-semibold">
+                                <h3 className="font-semibold text-[#E5E7EB]">
                                     {asset.title}
                                 </h3>
 
                                 <span
                                     className={`text-xs px-2 py-1 rounded-full ${asset.visibility === "public"
-                                        ? "bg-green-100 text-green-600"
-                                        : "bg-red-100 text-red-600"
+                                        ? "bg-[#10B981]/20 text-[#10B981]"
+                                        : "bg-[#374151] text-[#E5E7EB]"
                                         }`}
                                 >
                                     {asset.visibility}

@@ -8,15 +8,15 @@ const Button = ({
 }) => {
 
   const base =
-    "w-full py-2 rounded-lg transition font-medium";
+    "w-full py-2 rounded-lg transition-all duration-300 ease-in-out font-medium";
 
   const styles = {
     primary:
-      "bg-blue-600 text-white hover:bg-blue-700",
+      "bg-[#10B981] text-white hover:bg-[#059669]",
     secondary:
-      "bg-gray-200 text-gray-800 hover:bg-gray-300",
+      "bg-[#111827] text-[#E5E7EB] hover:bg-[#1F2937] border border-[#374151]",
     danger:
-      "bg-red-500 text-white hover:bg-red-600"
+      "bg-[#374151] text-[#E5E7EB] hover:bg-[#4B5563]"
   };
 
   const isDisabled = disabled || loading;
