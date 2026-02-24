@@ -11,6 +11,7 @@ import VerifyOtp from "./pages/Verifyotp";
 import CreateAsset from "./pages/CreateAsset";
 import MyAssets from "./pages/MyAsset";
 import ChatRoom from "./pages/ChatRoom";
+import BuyToken from "./pages/BuyToken";
 
 function App() {
   return (
@@ -65,6 +66,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ChatRoom />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/buy-token"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <BuyToken />
+                  </Layout>
                 </ProtectedRoute>
               }
             />

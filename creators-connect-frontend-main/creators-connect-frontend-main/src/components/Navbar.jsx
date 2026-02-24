@@ -47,6 +47,12 @@ const Navbar = () => {
               >
                 Chat
               </Link>
+              <Link
+                to="/buy-token"
+                className="text-[#E5E7EB] hover:text-[#10B981] transition-all duration-300 ease-in-out"
+              >
+                Buy Tokens
+              </Link>
 
               {/* Username */}
               <span className="text-[#E5E7EB] text-sm">

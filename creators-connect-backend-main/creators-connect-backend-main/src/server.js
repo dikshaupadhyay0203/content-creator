@@ -1,7 +1,4 @@
-// import dotenv from "dotenv";
-// dotenv.config();
 import express from "express";
-import "dotenv/config"
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
@@ -14,6 +11,9 @@ import mongoose from "mongoose";
 import { saveMessageService } from "./services/chatService.js";
 // Import chat controller
 import * as chatController from "./controllers/chatController.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import webhookRoute from "./routes/webhookRoute.js";
+
 
 connectDB();
 
@@ -31,6 +31,9 @@ const io = new Server(httpServer, {
   },
   transports: ["websocket"]
 });
+
+app.use("/api/webhook", webhookRoute);
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
@@ -39,7 +42,7 @@ app.use(cors({
   origin: ["https://creators-connect-frontend.vercel.app", "http://localhost:5173"],
   credentials: true
 }));
-
+app.use("/api/plans", paymentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/assets", assetRoutes);
 app.use("/api/chat", chatRoutes);
