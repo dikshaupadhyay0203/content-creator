@@ -190,10 +190,6 @@ export const SocketProvider = ({ children }) => {
         const userId = getUserId();
         if (socket && user && userId) {
             console.log("Sending message to room:", roomId, message);
-            emitWhenConnected("joinRoom", {
-                roomId,
-                user: { id: userId, name: user.name }
-            });
             emitWhenConnected("sendMessage", {
                 roomId,
                 message,
@@ -242,10 +238,6 @@ export const SocketProvider = ({ children }) => {
         const userId = getUserId();
         if (socket && user && userId) {
             console.log("Sending DM to room:", roomId, "message:", message);
-            emitWhenConnected("joinRoom", {
-                roomId,
-                user: { id: userId, name: user.name }
-            });
             emitWhenConnected("sendDirectMessage", {
                 roomId,
                 message,

@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 
+const ACTIVE_CHAT_STORAGE_KEY = "active_chat_room";
+
 const ChatRoom = () => {
     const { user } = useAuth();
     const currentUserId = user?.id || user?._id;
@@ -62,6 +64,24 @@ const ChatRoom = () => {
         return otherUser?.name || "Direct Message";
     };
 
+    const persistActiveRoom = (roomData) => {
+        if (!roomData) {
+            localStorage.removeItem(ACTIVE_CHAT_STORAGE_KEY);
+            return;
+        }
+
+        localStorage.setItem(ACTIVE_CHAT_STORAGE_KEY, JSON.stringify(roomData));
+    };
+
+    const getStoredRoom = () => {
+        try {
+            const stored = localStorage.getItem(ACTIVE_CHAT_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : null;
+        } catch {
+            return null;
+        }
+    };
+
     // Check if navigated from Dashboard with direct message
     useEffect(() => {
         const state = location.state;
@@ -78,8 +98,47 @@ const ChatRoom = () => {
                 console.log("Joining DM room:", state.roomId);
                 joinRoom(state.roomId, state.recipientName || "Chat");
             }
+
+            persistActiveRoom({
+                id: state.roomId,
+                name: state.recipientName || "Chat",
+                recipientId: state.recipientId,
+                isDirectMessage: true
+            });
         }
     }, [location.state, socket, user, currentUserId, joinRoom]);
+
+    useEffect(() => {
+        const state = location.state;
+        if (!socket || !user) return;
+        if (state?.directMessage && state?.roomId) return;
+        if (currentRoom) return;
+
+        const storedRoom = getStoredRoom();
+        if (!storedRoom?.id) return;
+
+        setIsDirectMessage(Boolean(storedRoom.isDirectMessage));
+        setCurrentRoom({
+            id: storedRoom.id,
+            name: storedRoom.name || "Chat",
+            recipientId: storedRoom.recipientId
+        });
+        joinRoom(storedRoom.id, storedRoom.name || "Chat");
+    }, [socket, user, location.state, currentRoom, joinRoom]);
+
+    useEffect(() => {
+        if (!currentRoom) {
+            persistActiveRoom(null);
+            return;
+        }
+
+        persistActiveRoom({
+            id: getRoomIdentifier(currentRoom),
+            name: currentRoom.name,
+            recipientId: currentRoom.recipientId,
+            isDirectMessage
+        });
+    }, [currentRoom, isDirectMessage]);
 
     // Listen for messages from socket
     useEffect(() => {
@@ -220,6 +279,7 @@ const ChatRoom = () => {
             setRoomUsers([]);
             setIsDirectMessage(false);
             setTypingUser(null);
+            persistActiveRoom(null);
             navigate("/dashboard");
         }
     };

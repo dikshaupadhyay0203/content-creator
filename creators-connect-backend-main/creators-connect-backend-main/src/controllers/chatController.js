@@ -63,9 +63,6 @@ export const handleJoinRoom = (socket, io, { roomId, roomName, user }) => {
         room.users.push({ id: user.id, name: user.name, socketId: socket.id });
     }
 
-    // Send previous messages
-    socket.emit("previousMessages", room.messages);
-
     return { room, messages: room.messages };
 };
 
